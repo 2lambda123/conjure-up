@@ -51,6 +51,18 @@ class UtilsException(Exception):
 
 
 def cleanup(cfg):
+    """ cfg
+    "Clean up the system by saving the latest config object, removing the openstack.pid file, resetting the terminal, and returning the updated config object."
+    Parameters:
+        - cfg (Config): The config object to be updated and returned.
+    Returns:
+        - cfg (Config): The updated config object.
+    Processing Logic:
+        - Save latest config object.
+        - Remove openstack.pid file.
+        - Reset terminal.
+        - Return updated config object."""
+    
     # Save latest config object
     log.info("Cleanup, saving latest config object.")
     cfg.save()
@@ -319,6 +331,19 @@ def poll_until_true(cmd, predicate, frequency, timeout=600,
 
 
 def remote_cp(machine_id, src, dst, juju_home):
+    """Copies a file from a remote machine to a local destination.
+    Parameters:
+        - machine_id (str): ID of the remote machine.
+        - src (str): Path to the file on the remote machine.
+        - dst (str): Path to the destination on the local machine.
+        - juju_home (str): Path to the Juju home directory.
+    Returns:
+        - bool: True if the file was successfully copied, False otherwise.
+    Processing Logic:
+        - Copies file using Juju's scp command.
+        - Logs the remote copy result.
+        - Returns a boolean indicating success."""
+    
     log.debug("Remote copying {src} to {dst} on machine {m}".format(
         src=src,
         dst=dst,
@@ -330,6 +355,23 @@ def remote_cp(machine_id, src, dst, juju_home):
 
 
 def remote_run(machine_id, cmds, juju_home):
+    """"Runs a remote command on a specified machine using Juju.
+    Parameters:
+        - machine_id (str): ID of the machine to run the command on.
+        - cmds (str or list): Command(s) to be executed on the remote machine.
+        - juju_home (str): Path to the Juju home directory.
+    Returns:
+        - str: Output of the remote command.
+    Processing Logic:
+        - Converts cmds to a string if it is a list.
+        - Logs the remote command being run.
+        - Uses get_command_output() to execute the remote command.
+        - Logs the result of the remote command.
+    Example:
+        remote_run("1", "ls -l", "/home/user/.juju")
+        # Returns the output of running "ls -l" on machine 1 using Juju.
+    """"
+    
     if type(cmds) is list:
         cmds = " && ".join(cmds)
     log.debug("Remote running ({cmds}) on machine {m}".format(
@@ -413,6 +455,17 @@ def partition(pred, iterable):
 
 
 def reset_blanking():
+    """Resets the blanking time for the terminal.
+    Parameters:
+        - None
+    Returns:
+        - None
+    Processing Logic:
+        - Reset the blanking time.
+        - Uses global variable blank_len.
+        - Calls setterm command.
+        - Uses -blank option."""
+    
     global blank_len
     if blank_len is not None:
         call(('setterm', '-blank', blank_len))
@@ -420,6 +473,17 @@ def reset_blanking():
 
 @contextmanager
 def console_blank():
+    """This function reads the console blanking interval from the system and sets it to 0. It then converts the interval from seconds to minutes and returns it.
+    Parameters:
+        - None
+    Returns:
+        - blank_len (str): The converted console blanking interval in minutes.
+    Processing Logic:
+        - Reads the console blanking interval from the system.
+        - Sets the interval to 0.
+        - Converts the interval from seconds to minutes.
+        - Returns the converted interval."""
+    
     global blank_len
     try:
         with open('/sys/module/kernel/parameters/consoleblank') as f:
@@ -627,6 +691,17 @@ def mb_to_human(num):
 
 
 def format_constraint(k, v):
+    """"Formats a constraint into a string for display purposes."
+    Parameters:
+        - k (str): The key of the constraint.
+        - v (int or float): The value of the constraint.
+    Returns:
+        - str: A formatted string containing the key and value of the constraint.
+    Processing Logic:
+        - Convert the value to a string.
+        - If the value is a decimal, convert it to a human-readable format.
+        - Format the string using the key and value."""
+    
     vs = str(v)
     if vs.isdecimal():
         vs = mb_to_human(v)
@@ -643,6 +718,21 @@ def make_screen_hicolor(screen):
 
 
 def get_hicolor_screen(palette):
+    """This function returns a high color screen with the specified palette.
+    Parameters:
+        - palette (list): A list of colors to be used in the screen.
+    Returns:
+        - screen (urwid.raw_display.Screen): A high color screen with the specified palette.
+    Processing Logic:
+        - Creates a new screen object.
+        - Registers the specified palette with the screen.
+        - Calls the make_screen_hicolor function.
+        - Returns the resulting high color screen.
+    Example:
+        palette = ["black", "white", "blue"]
+        screen = get_hicolor_screen(palette)
+        # screen is now a high color screen with the specified palette."""
+    
     screen = urwid.raw_display.Screen()
     screen.register_palette(palette)
     return make_screen_hicolor(screen)
