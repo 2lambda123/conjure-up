@@ -26,7 +26,7 @@ def load(name, path):
     :param str path: directory location of templates
     """
     env = Environment(
-        loader=FileSystemLoader(path))
+        loader=FileSystemLoader(path), autoescape=True)
     return env.get_template(name)
 
 
