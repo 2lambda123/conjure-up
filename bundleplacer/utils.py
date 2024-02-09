@@ -502,7 +502,7 @@ def load_template(name, path=None):
     if path is None:
         path = '/usr/share/openstack/templates'
     env = Environment(
-        loader=FileSystemLoader(path))
+        loader=FileSystemLoader(path), autoescape=True)
     return env.get_template(name)
 
 
